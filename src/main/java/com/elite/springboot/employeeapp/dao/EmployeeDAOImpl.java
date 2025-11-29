@@ -28,7 +28,7 @@ public class EmployeeDAOImpl implements EmployeeDAO{
 
     @Override
     public Employee findById(int empId) {
-        return null;
+        return entityManager.find(Employee.class,empId);
     }
 
     @Override

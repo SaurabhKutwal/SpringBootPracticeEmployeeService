@@ -4,6 +4,7 @@ import com.elite.springboot.employeeapp.Entity.Employee;
 import com.elite.springboot.employeeapp.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +29,11 @@ public class EmployeeController {
         return employeeService.findALL();
     }
 
-    //Get Employee by Id
+    //Get Employee by id
+    @GetMapping("/{empId}")
+    public Employee findById(@PathVariable int empId){
+        return employeeService.findById(empId);
+    }
 
     //Add Employee
 
