@@ -3,6 +3,7 @@ package com.elite.springboot.employeeapp.service;
 import com.elite.springboot.employeeapp.Entity.Employee;
 import com.elite.springboot.employeeapp.dao.EmployeeDAO;
 import com.elite.springboot.employeeapp.exception.EmployeeNotFoundException;
+import com.elite.springboot.employeeapp.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,33 +12,35 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
 
-    private EmployeeDAO employeeDAO;
+    //private EmployeeDAO employeeDAO;
     private JsonMapper jsonMapper;
+    private EmployeeRepository employeeRepository;
 
     @Autowired
-    public EmployeeServiceImpl(EmployeeDAO employeeDAO, JsonMapper jsonMapper){
-        this.employeeDAO = employeeDAO;
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, JsonMapper jsonMapper){
+        this.employeeRepository = employeeRepository;
         this.jsonMapper = jsonMapper;
     }
 
     @Override
     public List<Employee> findALL() {
-        return employeeDAO.findAll();
+        return employeeRepository.findAll();
     }
 
     @Override
     public Employee findById(int empId){
 
         try{
-            Employee dbEmp = employeeDAO.findById(empId);
-            if(dbEmp == null){
+            Optional<Employee> opt = employeeRepository.findById(empId);
+            if(opt.isEmpty()){
                 throw new EmployeeNotFoundException("Employee not found for Id " + empId);
             }
-            return dbEmp;
+            return opt.get();
         } catch (EmployeeNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -46,15 +49,15 @@ public class EmployeeServiceImpl implements EmployeeService{
     @Override
     @Transactional
     public Employee save(Employee emp) {
-        return employeeDAO.save(emp);
+        return employeeRepository.save(emp);
     }
 
     @Override
     @Transactional
     public Employee update(int empId, Map<String, Object> patch) {
-        Employee dbEmp = employeeDAO.findById(empId);
+        Optional<Employee> opt = employeeRepository.findById(empId);
 
-        if(dbEmp == null){
+        if(opt.isEmpty()){
             throw new RuntimeException("Employee Not found for id " + empId);
         }
 
@@ -62,9 +65,9 @@ public class EmployeeServiceImpl implements EmployeeService{
             throw new RuntimeException("Id can't be updated");
         }
 
-        Employee updated = applyPatch(dbEmp, patch);
+        Employee updated = applyPatch(opt.get(), patch);
 
-        return employeeDAO.save(updated);
+        return employeeRepository.save(updated);
     }
 
     private Employee applyPatch(Employee dbEmp, Map<String, Object> patch) {
@@ -79,11 +82,11 @@ public class EmployeeServiceImpl implements EmployeeService{
     @Override
     @Transactional
     public Employee delete(int empId) {
-        Employee emp = employeeDAO.findById(empId);
-        if(emp == null){
+        Optional<Employee> opt = employeeRepository.findById(empId);
+        if(opt.isEmpty()){
             throw new RuntimeException("Employee not found for id " + empId);
         }
-        employeeDAO.deleteEmployee(emp);
-        return emp;
+        employeeRepository.delete(opt.get());
+        return opt.get();
     }
 }
