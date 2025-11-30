@@ -47,13 +47,11 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    @Transactional
     public Employee save(Employee emp) {
         return employeeRepository.save(emp);
     }
 
     @Override
-    @Transactional
     public Employee update(int empId, Map<String, Object> patch) {
         Optional<Employee> opt = employeeRepository.findById(empId);
 
@@ -80,7 +78,6 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
-    @Transactional
     public Employee delete(int empId) {
         Optional<Employee> opt = employeeRepository.findById(empId);
         if(opt.isEmpty()){
